@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Library</title>
+    <link rel="stylesheet" href="../static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body class="body">
+    <div class="nav_panel">
+        <div class="main-title">Authors</div>
+        <a href="/" class="second_text">All Books</a>
+    </div>
+    <div class="control-panel">
+        <button class="controll-button" id="add_button">+ add</button>
+    </div>
+    <div class="author-list">
+        {% for item in data %}
+        <div class="author-box">
+            <h3>{{ item[0] }}</h3>
+            <i id="{{item[0]}}" class="fa fa-trash-o" onclick="delete_author_start('{{item[0]}}')"></i>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="delete-modal">
+        <div class="delete-content">
+            <h2>Are you sure you want to delete this author including all their books?</h2>
+            <button class="red-button" onclick="delete_author()">Yes</button>
+            <button class="green-button" onclick="hide_del_modal()">No</button>
+        </div>
+    </div>
+
+    <div id="add_modal" class="add-body">
+        <div class="add-content">
+            <h2>Add a new author</h2>
+            <form id="forma" class="add-form" action="{{ url_for('add_author') }}" method="post">
+                <input name="name" placeholder="Author name.." style="font-family: 'Courier New', Courier, monospace;">
+            </form>
+            <div class="add-buttons">
+                <button id="save-button" class="green-button">Save</button>
+                <button id="cancel-button" class="red-button">Cancel</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var current_delete_index = ""
+
+        function hide_del_modal() {
+            var del_modal = document.getElementsByClassName("delete-modal")[0];
+            del_modal.style.display = "none";
+        }
+
+        function delete_author_start(id) {
+            current_delete_index = id
+            var author_id = document.getElementById(id);
+            var del_modal = document.getElementsByClassName("delete-modal")[0];
+            del_modal.style.display = "block";
+        }
+
+        function delete_author() {
+            fetch("/delete_author", {
+                method: "POST",
+                body: JSON.stringify({
+                    author_name: current_delete_index
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            });
+            window.location.reload()
+        }
+
+        var modal = document.getElementById("add_modal");
+        var add_button = document.getElementById("add_button");
+        var forma = document.getElementById("forma")
+
+        var cancel_button = document.getElementById("cancel-button");
+        var save_button = document.getElementById("save-button");
+
+        add_button.onclick = function () {
+            modal.style.display = "block";
+        }
+        cancel_button.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        save_button.onclick = function () {
+            forma.submit()
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Adding a new book</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            height: 100%;
+        }
+
+        .simple-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .center {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-width: 10%;
+            min-height: 10%;
+            text-align: center;
+            background-color: rgb(162, 235, 155);
+            border-radius: 1rem;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 3rem;
+        }
+
+        a {
+            margin-top: 1rem;
+            text-decoration: none;
+            color: black;
+        }
+    </style>
+</head>
+
+<body class="simple-body">
+    <div class="center">
+        <h3>{{result}}</h3>
+        {%if result[0] == "B"%}
+        <a href="/">Go back</a>
+        {%else%}
+        <a href="/authors">Go back</a>
+        {% endif %}
+    </div>
+</body>
+
+</html>

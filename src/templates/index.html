@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Library</title>
+    <link rel="stylesheet" href="../static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body class="body">
+    <div class="nav_panel">
+        <div class="main-title">All Books</div>
+        <a href="/authors" class="second_text">Authors</a>
+    </div>
+    <div class="control-panel">
+        <button class="controll-button" id="add_button">+ add</button>
+        <button class="controll-button" onclick="redirectToDownload()">&#10515; export</button>
+        <input class="book-search" type="text" id="searchNameInput" placeholder="Search by title...">
+        <input class="book-search" type="text" id="searchAuthorInput" placeholder="Search by author...">
+    </div>
+    <div class="book-list">
+        {% for item in data %}
+        <div class="book-box">
+            <h3>{{ item[1] }}</h3>
+            <h5>By: {{ item[3] }}</h5>
+            <i id="{{item[0]}}" class="fa fa-trash-o" onclick="delete_book_start('{{item[0]}}')"></i>
+            <i id="{{item[0]}}" class="fa fa-pencil"
+                onclick="edit_book('{{item[0]}}', '{{item[1]}}', '{{item[2]}}', '{{item[3]}}')"></i>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div id="add_modal" class="add-body">
+        <div class="add-content">
+            <h2>Add a new book</h2>
+            <form id="forma" class="add-form" action="{{ url_for('add_book') }}" method="post">
+                <input name="title" placeholder="title" style="font-family: 'Courier New', Courier, monospace;"
+                    required>
+                <textarea name="description" placeholder="description"></textarea>
+                <input name="author" placeholder="author" style="font-family: 'Courier New', Courier, monospace;">
+            </form>
+            <div class="add-buttons">
+                <button id="save-button" class="green-button">Save</button>
+                <button id="cancel-button" class="red-button">Cancel</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="delete-modal">
+        <div class="delete-content">
+            <h2>Are you sure you want to delete this book?</h2>
+            <button class="red-button" onclick="delete_book()">Yes</button>
+            <button class="green-button" onclick="hide_del_modal()">No</button>
+        </div>
+    </div>
+
+    <div class="edit-modal">
+        <div class="edit-content">
+            <h2>Edit book information?</h2>
+            <form id="forma_edit" class="edit-form" action="{{ url_for('edit_book') }}" method="post">
+                <input name="id" id="id" style="display: none;">
+                <input id="edit_t" name="title" placeholder="title"
+                    style="font-family: 'Courier New', Courier, monospace;" required>
+                <textarea id="edit_d" name="description" placeholder="description"></textarea>
+                <input id="edit_a" name="author" placeholder="author"
+                    style="font-family: 'Courier New', Courier, monospace;">
+            </form>
+            <div class="add-buttons">
+                <button id="save-edit-button" class="green-button">Save</button>
+                <button id="cancel-edit-button" class="red-button" onclick="hide_edit_modal()">Cancel</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var current_delete_index = 0
+
+        function edit_book(id, title, desc, author) {
+            document.getElementById("id").value = id
+            document.getElementById("edit_t").value = title
+            document.getElementById("edit_d").innerHTML = desc
+            document.getElementById("edit_a").value = author
+            var edit_modal = document.getElementsByClassName("edit-modal")[0];
+            edit_modal.style.display = "block";
+        }
+
+        function hide_edit_modal() {
+            var edit_modal = document.getElementsByClassName("edit-modal")[0];
+            edit_modal.style.display = "none";
+        }
+
+        function hide_del_modal() {
+            var del_modal = document.getElementsByClassName("delete-modal")[0];
+            del_modal.style.display = "none";
+        }
+        function delete_book_start(id) {
+            current_delete_index = id
+            var book_id = document.getElementById(id);
+            var del_modal = document.getElementsByClassName("delete-modal")[0];
+            del_modal.style.display = "block";
+        }
+
+        function delete_book() {
+            fetch("/delete_book", {
+                method: "POST",
+                body: JSON.stringify({
+                    book_id: current_delete_index
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            });
+            window.location.reload()
+        }
+
+
+        function redirectToDownload() {
+            window.location.href = "/download";
+        }
+        document.getElementById('searchNameInput').addEventListener('input', function () {
+            let filter = this.value.toLowerCase();
+            let books = document.querySelectorAll('.book-box');
+
+            books.forEach(function (book) {
+                let title = book.querySelector('h3').innerText.toLowerCase();
+                if (title.startsWith(filter)) {
+                    book.style.display = 'block';
+                } else {
+                    book.style.display = 'none';
+                }
+            });
+        });
+
+        document.getElementById('searchAuthorInput').addEventListener('input', function () {
+            let filter = this.value.toLowerCase();
+            let books = document.querySelectorAll('.book-box');
+
+            books.forEach(function (book) {
+                let title = book.querySelector('h5').innerText.toLowerCase().slice(4);
+                if (title.startsWith(filter)) {
+                    book.style.display = 'block';
+                } else {
+                    book.style.display = 'none';
+                }
+            });
+        });
+
+        var modal = document.getElementById("add_modal");
+        var add_button = document.getElementById("add_button");
+        var forma = document.getElementById("forma")
+
+        var cancel_button = document.getElementById("cancel-button");
+        var save_button = document.getElementById("save-button");
+
+        add_button.onclick = function () {
+            modal.style.display = "block";
+        }
+        cancel_button.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        save_button.onclick = function () {
+            forma.submit()
+        }
+
+        var edit_button = document.getElementById("save-edit-button")
+        var edit_form = document.getElementById("forma_edit")
+        edit_button.onclick = function () {
+            edit_form.submit()
+        }
+
+    </script>
+</body>
+
+</html>
